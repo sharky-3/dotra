@@ -1,0 +1,7 @@
+.text-hero {
+    display: block;
+    width: 70%;
+
+    .title { font-size: 25px; font-weight: 400; }
+    .text { font-size: 20px; }
+}

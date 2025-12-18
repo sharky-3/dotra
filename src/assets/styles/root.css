@@ -1,21 +1,24 @@
 @import url("./design.css");
 @import url("./style.css");
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght,XOPQ,XTRA,YOPQ,YTDE,YTFI,YTLC,YTUC@8..144,100..1000,96,468,79,-203,738,514,712&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
     --white-color: #ededed;
     --black-color: #111111;
     --gray-color: #1f1f1f;
 
-    --primary-family-font: 'Courier New', Courier, monospace;
+    --primary-font: 'Courier New', Courier, monospace;
+    --secondary-font: "Roboto", sans-serif;
 }
 
 body {
     background-color: var(--black-color);
     color: var(--white-color);
     height: 100vh;
-    width: 50%;
+    width: 55%;
 
     margin: 0 auto;
 
-    font-family: var(--primary-family-font);
+    font-family: var(--secondary-font);
+    font-weight: 300;
 }

@@ -1,7 +1,56 @@
 .main-page-hero {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 100px;
+    
     .image-editor-hero {
-        background-color: red;
         height: 500px;
         width: 100%;
+
+        border: 1px solid var(--gray-color);
+        border-radius: 18px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+
+        .upload-image {
+            background-color: var(--gray-color);
+            width: 50%;
+            height: 100%;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            overflow: hidden;
+
+            .upload-icon {
+                width: 50px;
+                opacity: .25;
+                transform: rotate(-10deg);
+                transition: all .3s ease;
+                cursor: pointer;
+            }
+            &:hover .upload-icon {
+                opacity: 1;
+                transform: rotate(360deg) scale(1.1);
+            }
+
+            .uploaded-image {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .image-editor {
+            width: 50%;
+            height: 100%;
+        }
     }
 }
