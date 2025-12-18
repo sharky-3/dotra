@@ -1,0 +1,21 @@
+@import url("./design.css");
+@import url("./style.css");
+
+:root {
+    --white-color: #ededed;
+    --black-color: #111111;
+    --gray-color: #1f1f1f;
+
+    --primary-family-font: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: var(--black-color);
+    color: var(--white-color);
+    height: 100vh;
+    width: 50%;
+
+    margin: 0 auto;
+
+    font-family: var(--primary-family-font);
+}
