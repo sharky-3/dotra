@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TITLE_TEXT } from "./text.module";
 import { NORMAL_BUTTON, ICON_BUTTON } from "./button.module";
+import { RANGE } from "./range-hero";
 
 export const IMAGE_EDITOR = () => {
     const [image, setImage] = useState(null);
@@ -34,10 +35,10 @@ export const IMAGE_EDITOR = () => {
             <div className="image-editor">
                 <div className="top">
                     <div className="left">
-                        
+                        <RANGE title={"Dot size"} min_value={0} max_value={100} current_value={10} />
                     </div>
                     <div className="right">
-
+                        <RANGE title={"Dot size"} min_value={0} max_value={100} current_value={10} />
                     </div>
                 </div>
                 <div className="bottom">

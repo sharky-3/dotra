@@ -55,6 +55,21 @@
             .top {
                 height: 85%;
                 width: 100%;
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .left, .right {
+                    --padding: 20px;
+                    width: 50%;
+                    height: calc(100% - var(--padding) * 2);
+                    padding: var(--padding);
+                }
+                .left {
+                }
+                .right {
+                }
             }
 
             .bottom {
