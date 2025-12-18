@@ -1,16 +1,25 @@
 export const RANGE = ({
     title,
     min_value,
-    max_value, 
-    current_value
+    max_value,
+    current_value,
+    onChange
 }) => {
     return (
         <div className="range-hero">
             <header>
                 <div className="range-title">{title}</div>
-                <div id="range-value">0.0</div>
+                <div id="range-value">{current_value}</div>
             </header>
-            <input type="range" id="range" min={min_value} max={max_value} value={current_value} />
+
+            <input
+                type="range"
+                id="range"
+                min={min_value}
+                max={max_value}
+                value={current_value}
+                onChange={(e) => onChange(Number(e.target.value))}
+            />
         </div>
     );
-}
+};
