@@ -51,6 +51,22 @@
         .image-editor {
             width: 50%;
             height: 100%;
+
+            .top {
+                height: 85%;
+                width: 100%;
+            }
+
+            .bottom {
+                height: 15%;
+                width: 100%;
+
+                display: flex;
+                justify-content: space-evenly;
+                align-items: center;
+
+                border-top: 1px solid var(--gray-color);
+            }
         }
     }
 }

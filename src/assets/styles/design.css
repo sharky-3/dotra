@@ -5,3 +5,44 @@
     .title { font-size: 25px; font-weight: 400; }
     .text { font-size: 20px; }
 }
+
+.normal-button-hero {
+    padding: 10px 15px;
+    border: 1px solid var(--gray-color);
+    border-radius: 50px;
+}
+.icon-button-hero {
+    width: 200px;
+    padding: 8px 20px;
+    border: 1px solid var(--gray-color);
+    border-radius: 50px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    transition: all .3s ease;
+    cursor: pointer;
+
+    .icon-image { 
+        width: 15px; 
+        cursor: pointer; 
+        transform: rotate(-10deg); 
+        transition: all .3s ease;
+    }
+    .button {
+        background: none;
+        border: none;
+        color: var(--white-color);
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    &:hover {
+        background-color: var(--gray-color);
+        .icon-image {
+            transform: rotate(0deg);
+        }
+    }
+}

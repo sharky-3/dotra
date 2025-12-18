@@ -15,10 +15,10 @@ body {
     background-color: var(--black-color);
     color: var(--white-color);
     height: 100vh;
-    width: 55%;
+    width: 60%;
 
     margin: 0 auto;
 
-    font-family: var(--secondary-font);
+    font-family: var(--secondary-font) !important;
     font-weight: 300;
 }
