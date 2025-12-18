@@ -13,6 +13,8 @@ export const IMAGE_EDITOR = () => {
     const [colorMode, setColorMode] = useState("color");
     const [opacity, setOpacity] = useState(100);
     const [brightness, setBrightness] = useState(100);
+    const [colorVibration, setColorVibration] = useState(0);
+    const [dotSizeMode, setDotSizeMode] = useState("normal"); 
 
     const offscreenRef = useRef(null);
     const canvasRef = useRef(null);
@@ -79,12 +81,32 @@ export const IMAGE_EDITOR = () => {
                 g = Math.min(255, g * (brightness / 100));
                 b = Math.min(255, b * (brightness / 100));
 
+                // Apply color vibration
+                if (colorVibration > 0) {
+                    const vibrate = (value) => {
+                        const shift = (Math.random() * 2 - 1) * colorVibration;
+                        return Math.min(255, Math.max(0, value + shift));
+                    };
+                    r = vibrate(r);
+                    g = vibrate(g);
+                    b = vibrate(b);
+                }
+
+                // --- Determine dot size based on mode ---
+                let currentDotSize = dotSize;
+                if (dotSizeMode === "random") {
+                    currentDotSize = Math.random() * dotSize + 1;
+                } else if (dotSizeMode === "brightness") {
+                    const gray = Math.round((r + g + b) / 3);
+                    currentDotSize = (gray / 255) * dotSize; 
+                }
+
                 ctx.fillStyle = `rgb(${r},${g},${b})`;
                 ctx.globalAlpha = opacity / 100;
 
                 ctx.save();
-                const centerX = x + dotSize / 2;
-                const centerY = y + dotSize / 2;
+                const centerX = x + currentDotSize / 2;
+                const centerY = y + currentDotSize / 2;
                 ctx.translate(centerX, centerY);
                 ctx.rotate((rotation * Math.PI) / 180);
                 ctx.translate(-centerX, -centerY);
@@ -92,34 +114,34 @@ export const IMAGE_EDITOR = () => {
                 switch (shape) {
                     case "circle":
                         ctx.beginPath();
-                        ctx.arc(centerX, centerY, dotSize / 2, 0, Math.PI * 2);
+                        ctx.arc(centerX, centerY, currentDotSize / 2, 0, Math.PI * 2);
                         ctx.fill();
                         break;
                     case "triangle":
                         ctx.beginPath();
-                        ctx.moveTo(x + dotSize / 2, y);
-                        ctx.lineTo(x + dotSize, y + dotSize);
-                        ctx.lineTo(x, y + dotSize);
+                        ctx.moveTo(x + currentDotSize / 2, y);
+                        ctx.lineTo(x + currentDotSize, y + currentDotSize);
+                        ctx.lineTo(x, y + currentDotSize);
                         ctx.closePath();
                         ctx.fill();
                         break;
                     case "diamond":
                         ctx.beginPath();
-                        ctx.moveTo(x + dotSize / 2, y);
-                        ctx.lineTo(x + dotSize, y + dotSize / 2);
-                        ctx.lineTo(x + dotSize / 2, y + dotSize);
-                        ctx.lineTo(x, y + dotSize / 2);
+                        ctx.moveTo(x + currentDotSize / 2, y);
+                        ctx.lineTo(x + currentDotSize, y + currentDotSize / 2);
+                        ctx.lineTo(x + currentDotSize / 2, y + currentDotSize);
+                        ctx.lineTo(x, y + currentDotSize / 2);
                         ctx.closePath();
                         ctx.fill();
                         break;
                     case "hexagon":
                         ctx.beginPath();
-                        const a = dotSize / 2;
+                        const a = currentDotSize / 2;
                         const h = Math.sqrt(3) * a / 2;
                         ctx.moveTo(x + a, y);
-                        ctx.lineTo(x + dotSize, y + h);
-                        ctx.lineTo(x + dotSize, y + h + a);
-                        ctx.lineTo(x + a, y + dotSize);
+                        ctx.lineTo(x + currentDotSize, y + h);
+                        ctx.lineTo(x + currentDotSize, y + h + a);
+                        ctx.lineTo(x + a, y + currentDotSize);
                         ctx.lineTo(x, y + h + a);
                         ctx.lineTo(x, y + h);
                         ctx.closePath();
@@ -128,7 +150,7 @@ export const IMAGE_EDITOR = () => {
                     case "star":
                         ctx.beginPath();
                         const spikes = 5;
-                        const outerRadius = dotSize / 2;
+                        const outerRadius = currentDotSize / 2;
                         const innerRadius = outerRadius / 2.5;
                         let rot = Math.PI / 2 * 3;
                         let step = Math.PI / spikes;
@@ -143,7 +165,7 @@ export const IMAGE_EDITOR = () => {
                         ctx.fill();
                         break;
                     default:
-                        ctx.fillRect(x, y, dotSize, dotSize);
+                        ctx.fillRect(x, y, currentDotSize, currentDotSize);
                 }
 
                 ctx.restore();
@@ -151,14 +173,14 @@ export const IMAGE_EDITOR = () => {
         }
 
         ctx.restore();
-        ctx.globalAlpha = 1; // reset alpha
+        ctx.globalAlpha = 1;
     };
 
     // --- effect to redraw ---
     useEffect(() => {
         if (!image) return;
         drawImage();
-    }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness]);
+    }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness, colorVibration, dotSizeMode]);
 
     // --- reset settings ---
     const reset = () => {
@@ -169,6 +191,8 @@ export const IMAGE_EDITOR = () => {
         setColorMode("color");
         setOpacity(100);
         setBrightness(100);
+        setColorVibration(0);
+        setDotSizeMode("normal");
     };
 
     // --- download image ---
@@ -228,6 +252,16 @@ export const IMAGE_EDITOR = () => {
                             value={shape}
                             onChange={setShape}
                         />
+                        <OPTION
+                            list={[
+                                { label: "Normal", value: "normal" },
+                                { label: "Random Size", value: "random" },
+                                { label: "Scale with Brightness", value: "brightness" },
+                            ]}
+                            value={dotSizeMode}
+                            onChange={setDotSizeMode}
+                        />
+
                         <RANGE
                             title="Pixel size"
                             type="px"
@@ -240,7 +274,7 @@ export const IMAGE_EDITOR = () => {
                     </div>
 
                     <div className="right">
-                        <TITLE_TEXT text={"Color Mode"} />
+                        <TITLE_TEXT text={"Effects"} />
                         
                         <OPTION
                             list={[
@@ -285,6 +319,15 @@ export const IMAGE_EDITOR = () => {
                             step={1}
                             current_value={brightness}
                             onChange={setBrightness}
+                        />
+                        <RANGE
+                            title="Color Vibration"
+                            type="%"
+                            min_value={0}
+                            max_value={50}
+                            step={1}
+                            current_value={colorVibration}
+                            onChange={setColorVibration}
                         />
                     </div>
                 </div>
