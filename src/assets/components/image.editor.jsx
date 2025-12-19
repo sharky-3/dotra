@@ -73,10 +73,8 @@ export const IMAGE_EDITOR = () => {
 
                 // Apply color mode
                 if (colorMode === "bw") {
-                    const gray = (r + g + b) / 3;
-                    r = gray + (r - gray) * (saturation / 100);
-                    g = gray + (g - gray) * (saturation / 100);
-                    b = gray + (b - gray) * (saturation / 100);
+                    const gray = Math.round((r + g + b) / 3);
+                    r = g = b = gray;
                 }
 
                 // Apply brightness
@@ -285,6 +283,7 @@ export const IMAGE_EDITOR = () => {
                             current_value={spacing}
                             onChange={setSpacing}
                         />
+
                     </div>
 
                     <div className="right">
