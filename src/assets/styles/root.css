@@ -21,4 +21,13 @@ body {
 
     font-family: var(--secondary-font) !important;
     font-weight: 300;
+
+    transition: all .3s ease;
+    
+    h1, label, button, img, div {
+        transform: all .3s ease;
+    }
+}
+body.light img {
+  filter: invert(1) brightness(0);
 }

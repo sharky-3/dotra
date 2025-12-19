@@ -23,7 +23,12 @@ export const HEADER = () => {
     if (value === "en" || value === "es") {
       setLanguage(value);
     } else if (value === "toggle-theme") {
-      setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
+        setTheme((prevTheme) => {
+            const newTheme = prevTheme === "dark" ? "light" : "dark";
+            document.body.classList.remove("light", "dark");
+            document.body.classList.add(newTheme);
+            return newTheme;
+        });
     }
   };
 
