@@ -15,6 +15,7 @@ export const IMAGE_EDITOR = () => {
     const [brightness, setBrightness] = useState(100);
     const [colorVibration, setColorVibration] = useState(0);
     const [dotSizeMode, setDotSizeMode] = useState("normal"); 
+    const [spacing, setSpacing] = useState(0)
 
     const offscreenRef = useRef(null);
     const canvasRef = useRef(null);
@@ -63,8 +64,8 @@ export const IMAGE_EDITOR = () => {
         ctx.scale(zoom, zoom);
         ctx.translate(-canvasCenterX, -canvasCenterY);
 
-        for (let y = 0; y < img.height; y += dotSize) {
-            for (let x = 0; x < img.width; x += dotSize) {
+        for (let y = 0; y < img.height; y += dotSize + spacing) {
+            for (let x = 0; x < img.width; x += dotSize + spacing) {
                 const index = (y * img.width + x) * 4;
                 let r = pixels[index];
                 let g = pixels[index + 1];
@@ -72,8 +73,10 @@ export const IMAGE_EDITOR = () => {
 
                 // Apply color mode
                 if (colorMode === "bw") {
-                    const gray = Math.round((r + g + b) / 3);
-                    r = g = b = gray;
+                    const gray = (r + g + b) / 3;
+                    r = gray + (r - gray) * (saturation / 100);
+                    g = gray + (g - gray) * (saturation / 100);
+                    b = gray + (b - gray) * (saturation / 100);
                 }
 
                 // Apply brightness
@@ -180,7 +183,7 @@ export const IMAGE_EDITOR = () => {
     useEffect(() => {
         if (!image) return;
         drawImage();
-    }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness, colorVibration, dotSizeMode]);
+    }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness, colorVibration, dotSizeMode, spacing]);
 
     // --- reset settings ---
     const reset = () => {
@@ -193,6 +196,7 @@ export const IMAGE_EDITOR = () => {
         setBrightness(100);
         setColorVibration(0);
         setDotSizeMode("normal");
+        setSpacing(0);
     };
 
     // --- download image ---
@@ -266,10 +270,20 @@ export const IMAGE_EDITOR = () => {
                             title="Pixel size"
                             type="px"
                             min_value={2}
-                            max_value={100}
+                            max_value={300}
                             step={1}
                             current_value={dotSize}
                             onChange={setDotSize}
+                        />
+
+                        <RANGE
+                            title="Spacing"
+                            type="px"
+                            min_value={0}
+                            max_value={100}
+                            step={1}
+                            current_value={spacing}
+                            onChange={setSpacing}
                         />
                     </div>
 
