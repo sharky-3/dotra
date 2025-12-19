@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 
 export const HEADER = () => {
   const [language, setLanguage] = useState("en");
-  const [theme, setTheme] = useState("dark"); 
+  const [theme, setTheme] = useState("dark");
 
+  // THEME EFFECT
   useEffect(() => {
     const root = document.documentElement;
+
     if (theme === "dark") {
       root.style.setProperty("--white-color", "#ededed");
       root.style.setProperty("--black-color", "#111111");
@@ -15,21 +17,25 @@ export const HEADER = () => {
       root.style.setProperty("--black-color", "#ededed");
       root.style.setProperty("--gray-color", "#d8d8d8ff");
     }
+
+    document.body.classList.remove("light", "dark");
+    document.body.classList.add(theme);
   }, [theme]);
 
+  // HANDLER
   const handleSelectChange = (e) => {
-    const { value } = e.target;
+    const value = e.target.value;
 
-    if (value === "en" || value === "es") {
-      setLanguage(value);
-    } else if (value === "toggle-theme") {
-        setTheme((prevTheme) => {
-            const newTheme = prevTheme === "dark" ? "light" : "dark";
-            document.body.classList.remove("light", "dark");
-            document.body.classList.add(newTheme);
-            return newTheme;
-        });
+    if (value === "language") {
+      setLanguage((prev) => (prev === "en" ? "sl" : "en"));
     }
+
+    if (value === "theme") {
+      setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    }
+
+    // reset select back to placeholder
+    e.target.value = "";
   };
 
   return (
@@ -41,13 +47,19 @@ export const HEADER = () => {
       <div className="img settings-wrapper">
         <img src="/images/icons/settings.png" alt="settings" />
 
-        <select onChange={handleSelectChange} value={language}>
-          <option value="en">English</option>
-          <option value="toggle-theme">
+        <select defaultValue="" onChange={handleSelectChange}>
+          <option value="" disabled>
+            Settings
+          </option>
+
+          <option value="language">
+            {language === "en" ? "Switch to Slovenian" : "Switch to English"}
+          </option>
+
+          <option value="theme">
             {theme === "dark" ? "Light Theme" : "Dark Theme"}
           </option>
         </select>
-
       </div>
     </div>
   );
