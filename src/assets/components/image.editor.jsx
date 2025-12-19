@@ -8,7 +8,7 @@ export const IMAGE_EDITOR = () => {
     const [image, setImage] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
-    const [dotSize, setDotSize] = useState(10);
+    const [dotSize, setDotSize] = useState(50);
     const [shape, setShape] = useState("square");
     const [colorMode, setColorMode] = useState("color");
     const [opacity, setOpacity] = useState(100);
@@ -196,7 +196,7 @@ export const IMAGE_EDITOR = () => {
     const reset = () => {
         setZoom(1);
         setRotation(0);
-        setDotSize(10);
+        setDotSize(50);
         setShape("square");
         setColorMode("color");
         setOpacity(100);

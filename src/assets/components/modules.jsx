@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 
-export const HEADER = () => {
-  const [language, setLanguage] = useState("en");
+export const HEADER = ({ language, setLanguage }) => {
   const [theme, setTheme] = useState("dark");
 
-  // THEME EFFECT
   useEffect(() => {
     const root = document.documentElement;
-
     if (theme === "dark") {
       root.style.setProperty("--white-color", "#ededed");
       root.style.setProperty("--black-color", "#111111");
@@ -17,24 +14,18 @@ export const HEADER = () => {
       root.style.setProperty("--black-color", "#ededed");
       root.style.setProperty("--gray-color", "#d8d8d8ff");
     }
-
     document.body.classList.remove("light", "dark");
     document.body.classList.add(theme);
   }, [theme]);
 
-  // HANDLER
   const handleSelectChange = (e) => {
     const value = e.target.value;
-
     if (value === "language") {
       setLanguage((prev) => (prev === "en" ? "sl" : "en"));
     }
-
     if (value === "theme") {
       setTheme((prev) => (prev === "dark" ? "light" : "dark"));
     }
-
-    // reset select back to placeholder
     e.target.value = "";
   };
 
@@ -64,3 +55,4 @@ export const HEADER = () => {
     </div>
   );
 };
+export default HEADER;

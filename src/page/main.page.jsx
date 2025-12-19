@@ -1,23 +1,31 @@
-import { IMAGE_EDITOR } from "../assets/components/image.editor";
-import { HEADER } from "../assets/components/modules";
-import { TITLE_TEXT, TEXT_HERO } from "../assets/components/text.module";
+import { useState } from "react";
 
-export const MAIN = ({}) => {
+import { IMAGE_EDITOR } from "../assets/components/image.editor";
+import HEADER  from "../assets/components/modules";
+import { TEXT_HERO } from "../assets/components/text.module";
+import { TEXT_DATABASE } from "../lang/translations";
+
+export const MAIN = () => {
+    const [language, setLanguage] = useState("en");
+
     return (
         <div className="main-page-hero">
-            <HEADER />
+            <HEADER language={language} setLanguage={setLanguage} />
 
             <TEXT_HERO 
-                title={"Dithering Playground"}
-                text={"Upload any image and experiment with pixel shapes, sizes, colors, and rotations. Watch your image transform into stunning, stylized patterns in real-time."}
+                key={`hero-1-${language}`}
+                title={TEXT_DATABASE().ArtStudio[language][1].title}
+                text={TEXT_DATABASE().ArtStudio[language][1].text}
             />
 
             <IMAGE_EDITOR />
 
             <TEXT_HERO 
-                title={"Get Creative"}
-                text={"Try different shapes, opacity, and brightness settings to create unique effects. Once satisfied, download your artwork and share it with the world. Reach me at jakub@kbo.sk for questions, or check out my other projects on Twitter and my newsletter."}
+                key={`hero-2-${language}`}
+                title={TEXT_DATABASE().ArtStudio[language][2].title}
+                text={TEXT_DATABASE().ArtStudio[language][2].text}
             />
+
         </div>
     );
-}
+};
