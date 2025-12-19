@@ -124,7 +124,21 @@
             font-weight: 400;
             color: var(--white-color);
         }
+
+        input[type="text"] {
+            background: none;
+            color: var(--white-color);
+            border: none;
+
+            font-weight: 400s;
+            font-size: 18px;
+            width: 35px;
+
+            margin-left: auto;
+            outline: none;
+        }
     }
+
 
     input[type="range"] {
         -webkit-appearance: none;

@@ -1,4 +1,4 @@
-export const TEXT_DATABASE = ({lang}) => {
+export const TEXT_DATABASE = () => {
     return {
         ArtStudio: {
             sl: {

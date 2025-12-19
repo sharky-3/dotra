@@ -1,31 +1,51 @@
+import { useState, useEffect } from "react";
+
 export const RANGE = ({
-    title,
-    type,
-    min_value,
-    max_value,
-    step,
-    current_value,
-    onChange
+  title,
+  type,
+  min_value,
+  max_value,
+  step,
+  current_value,
+  onChange
 }) => {
+    const [inputValue, setInputValue] = useState(String(current_value));
+
+    useEffect(() => {
+        setInputValue(String(current_value));
+    }, [current_value]);
+
+    const handleInputChange = (e) => {
+        const val = e.target.value;
+        setInputValue(val);
+
+        const num = Number(val);
+        if (val === "" || isNaN(num)) return;
+        onChange(num);
+    };
+
     return (
         <div className="range-hero">
-            <header>
-                <div className="range-title">{title}</div>
-                <div id="range-value">{current_value} {type}</div>
-            </header>
-
+        <header>
+            <div className="range-title">{title}</div>
             <input
-                type="range"
-                min={min_value}
-                max={max_value}
-                value={current_value}
-                step={step}
-                style={{
-                    "--progress": `${((current_value - min_value) / (max_value - min_value)) * 100}%`
-                }}
-                onChange={(e) => onChange(Number(e.target.value))}
-            />
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+            />{type}
+        </header>
 
+        <input
+            type="range"
+            min={min_value}
+            max={max_value}
+            value={current_value}
+            step={step}
+            style={{
+            "--progress": `${((current_value - min_value) / (max_value - min_value)) * 100}%`
+            }}
+            onChange={(e) => onChange(Number(e.target.value))}
+        />
         </div>
     );
 };
