@@ -165,6 +165,15 @@ export const IMAGE_EDITOR = () => {
                         ctx.closePath();
                         ctx.fill();
                         break;
+                    case "heart":
+                        const s = currentDotSize;
+                        ctx.beginPath();
+                        ctx.moveTo(x + s / 2, y + s);
+                        ctx.bezierCurveTo(x + s, y + s / 2, x + s, y, x + s / 2, y + s / 3);
+                        ctx.bezierCurveTo(x, y, x, y + s / 2, x + s / 2, y + s);
+                        ctx.fill();
+                        break;
+
                     default:
                         ctx.fillRect(x, y, currentDotSize, currentDotSize);
                 }
@@ -250,6 +259,7 @@ export const IMAGE_EDITOR = () => {
                                 { label: "Diamond", value: "diamond" },
                                 { label: "Hexagon", value: "hexagon" },
                                 { label: "Star", value: "star" },
+                                { label: "Heart", value: "heart" },
                             ]}
                             value={shape}
                             onChange={setShape}
