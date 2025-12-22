@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-
 import { RANGE, OPTION } from "./controls";
 import { ICON_BUTTON } from "./button.module";
 import { TITLE_TEXT } from "./text.module";
+import { TRANSLATION } from "../../lang/translations";
 
-export const IMAGE_EDITOR = () => {
+export const IMAGE_EDITOR = ({ language }) => {
+    const t = TRANSLATION.getTranslation().Controls; 
+
     const [image, setImage] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
@@ -15,7 +17,7 @@ export const IMAGE_EDITOR = () => {
     const [brightness, setBrightness] = useState(100);
     const [colorVibration, setColorVibration] = useState(0);
     const [dotSizeMode, setDotSizeMode] = useState("normal"); 
-    const [spacing, setSpacing] = useState(0)
+    const [spacing, setSpacing] = useState(0);
 
     const offscreenRef = useRef(null);
     const canvasRef = useRef(null);
@@ -71,18 +73,15 @@ export const IMAGE_EDITOR = () => {
                 let g = pixels[index + 1];
                 let b = pixels[index + 2];
 
-                // Apply color mode
                 if (colorMode === "bw") {
                     const gray = Math.round((r + g + b) / 3);
                     r = g = b = gray;
                 }
 
-                // Apply brightness
                 r = Math.min(255, r * (brightness / 100));
                 g = Math.min(255, g * (brightness / 100));
                 b = Math.min(255, b * (brightness / 100));
 
-                // Apply color vibration
                 if (colorVibration > 0) {
                     const vibrate = (value) => {
                         const shift = (Math.random() * 2 - 1) * colorVibration;
@@ -93,13 +92,11 @@ export const IMAGE_EDITOR = () => {
                     b = vibrate(b);
                 }
 
-                // --- Determine dot size based on mode ---
                 let currentDotSize = dotSize;
-                if (dotSizeMode === "random") {
-                    currentDotSize = Math.random() * dotSize + 1;
-                } else if (dotSizeMode === "brightness") {
+                if (dotSizeMode === "random") currentDotSize = Math.random() * dotSize + 1;
+                else if (dotSizeMode === "brightness") {
                     const gray = Math.round((r + g + b) / 3);
-                    currentDotSize = (gray / 255) * dotSize; 
+                    currentDotSize = (gray / 255) * dotSize;
                 }
 
                 ctx.fillStyle = `rgb(${r},${g},${b})`;
@@ -173,11 +170,9 @@ export const IMAGE_EDITOR = () => {
                         ctx.bezierCurveTo(x, y, x, y + s / 2, x + s / 2, y + s);
                         ctx.fill();
                         break;
-
                     default:
                         ctx.fillRect(x, y, currentDotSize, currentDotSize);
                 }
-
                 ctx.restore();
             }
         }
@@ -186,13 +181,11 @@ export const IMAGE_EDITOR = () => {
         ctx.globalAlpha = 1;
     };
 
-    // --- effect to redraw ---
     useEffect(() => {
         if (!image) return;
         drawImage();
-    }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness, colorVibration, dotSizeMode, spacing]);
+    }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness, colorVibration, dotSizeMode, spacing, language]);
 
-    // --- reset settings ---
     const reset = () => {
         setZoom(1);
         setRotation(0);
@@ -206,7 +199,6 @@ export const IMAGE_EDITOR = () => {
         setSpacing(0);
     };
 
-    // --- download image ---
     const downloadImage = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -216,156 +208,64 @@ export const IMAGE_EDITOR = () => {
         link.click();
     };
 
-    // --- render ---
     return (
         <div className="image-editor-hero">
             <div className="upload-image">
                 {!image && (
                     <div className="upload-image">
                         <label className="upload-image-btn">
-                            <img
-                                className="upload-icon"
-                                src="/images/icons/upload.png"
-                                alt="upload"
-                            />
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={uploadImage}
-                                hidden
-                            />
+                            <img className="upload-icon" src="/images/icons/upload.png" alt="upload" />
+                            <input type="file" accept="image/*" onChange={uploadImage} hidden />
                         </label>
                     </div>
                 )}
-
-                {image && (
-                    <canvas
-                        ref={canvasRef}
-                        className="uploaded-image"
-                    />
-                )}
+                {image && <canvas ref={canvasRef} className="uploaded-image" />}
             </div>
 
             <div className="image-editor">
                 <div className="top">
                     <div className="left">
-                        <TITLE_TEXT text={"Shape"} />
-
+                        <TITLE_TEXT text={t.shape} />
                         <OPTION
                             list={[
-                                { label: "Square", value: "square" },
-                                { label: "Circle", value: "circle" },
-                                { label: "Triangle", value: "triangle" },
-                                { label: "Diamond", value: "diamond" },
-                                { label: "Hexagon", value: "hexagon" },
-                                { label: "Star", value: "star" },
-                                { label: "Heart", value: "heart" },
+                                { label: t.option.square, value: "square" },
+                                { label: t.option.circle, value: "circle" },
+                                { label: t.option.triangle, value: "triangle" },
+                                { label: t.option.diamond, value: "diamond" },
+                                { label: t.option.hexagon, value: "hexagon" },
+                                { label: t.option.star, value: "star" },
+                                { label: t.option.heart, value: "heart" },
                             ]}
                             value={shape}
                             onChange={setShape}
                         />
                         <OPTION
                             list={[
-                                { label: "Normal", value: "normal" },
-                                { label: "Random Size", value: "random" },
-                                { label: "Scale with Brightness", value: "brightness" },
+                                { label: t.option.normal, value: "normal" },
+                                { label: t.option.random, value: "random" },
+                                { label: t.option.brightness, value: "brightness" },
                             ]}
                             value={dotSizeMode}
                             onChange={setDotSizeMode}
                         />
-
-                        <RANGE
-                            title="Pixel size"
-                            type="px"
-                            min_value={2}
-                            max_value={300}
-                            step={1}
-                            current_value={dotSize}
-                            onChange={setDotSize}
-                        />
-
-                        <RANGE
-                            title="Spacing"
-                            type="px"
-                            min_value={0}
-                            max_value={100}
-                            step={1}
-                            current_value={spacing}
-                            onChange={setSpacing}
-                        />
-
+                        <RANGE title={t.pixelSize} type="px" min_value={2} max_value={300} step={1} current_value={dotSize} onChange={setDotSize} />
+                        <RANGE title={t.spacing} type="px" min_value={0} max_value={100} step={1} current_value={spacing} onChange={setSpacing} />
                     </div>
 
                     <div className="right">
-                        <TITLE_TEXT text={"Effects"} />
-                        
-                        <OPTION
-                            list={[
-                                { label: "Color", value: "color" },
-                                { label: "Monochrome", value: "bw" },
-                            ]}
-                            value={colorMode}
-                            onChange={setColorMode}
-                        />
-                        <RANGE
-                            title="Zoom"
-                            type="x"
-                            min_value={1}
-                            max_value={10}
-                            step={0.25}
-                            current_value={zoom}
-                            onChange={setZoom}
-                        />
-                        <RANGE
-                            title="Rotation"
-                            type="°"
-                            min_value={0}
-                            max_value={90}
-                            step={1}
-                            current_value={rotation}
-                            onChange={setRotation}
-                        />
-                        <RANGE
-                            title="Opacity"
-                            type="%"
-                            min_value={0}
-                            max_value={100}
-                            step={1}
-                            current_value={opacity}
-                            onChange={setOpacity}
-                        />
-                        <RANGE
-                            title="Brightness"
-                            type="%"
-                            min_value={0}
-                            max_value={200}
-                            step={1}
-                            current_value={brightness}
-                            onChange={setBrightness}
-                        />
-                        <RANGE
-                            title="Color Vibration"
-                            type="%"
-                            min_value={0}
-                            max_value={50}
-                            step={1}
-                            current_value={colorVibration}
-                            onChange={setColorVibration}
-                        />
+                        <TITLE_TEXT text={t.effects} />
+                        <OPTION list={[{ label: t.option.color, value: "color" }, { label: t.option.bw, value: "bw" }]} value={colorMode} onChange={setColorMode} />
+                        <RANGE title={t.zoom} type="x" min_value={1} max_value={10} step={0.25} current_value={zoom} onChange={setZoom} />
+                        <RANGE title={t.rotation} type="°" min_value={0} max_value={90} step={1} current_value={rotation} onChange={setRotation} />
+                        <RANGE title={t.opacity} type="%" min_value={0} max_value={100} step={1} current_value={opacity} onChange={setOpacity} />
+                        <RANGE title={t.brightness} type="%" min_value={0} max_value={200} step={1} current_value={brightness} onChange={setBrightness} />
+                        <RANGE title={t.colorVibration} type="%" min_value={0} max_value={50} step={1} current_value={colorVibration} onChange={setColorVibration} />
                     </div>
                 </div>
 
                 <div className="bottom">
-                    <ICON_BUTTON
-                        icon="/images/icons/reload.png"
-                        text="Reset"
-                        onClick={reset}
-                    />
-                    <ICON_BUTTON
-                        icon="/images/icons/download.png"
-                        text="Download"
-                        onClick={downloadImage}
-                    />
+                    <ICON_BUTTON icon="/images/icons/reload.png" text={t.reset} onClick={reset} />
+                    <ICON_BUTTON icon="/images/icons/download.png" text={t.download} onClick={downloadImage} />
                 </div>
             </div>
         </div>

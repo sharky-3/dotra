@@ -15,19 +15,19 @@ export const TEXT_HERO = ({ title, text, children }) => {
 
     return (
         <div className="text-hero">
-        <div className="row title-row">
-            <h1 className="title">{splitWords(title)}</h1>
-        </div>
-
-        <div className="row text-row">
-            <label className="text">{splitWords(text)}</label>
-        </div>
-
-        {children && (
-            <div className="row actions-row">
-            {children}
+            <div className="row title-row">
+                <h1 className="title">{splitWords(title)}</h1>
             </div>
-        )}
+
+            <div className="row text-row">
+                <label className="text">{splitWords(text)}</label>
+            </div>
+
+            {children && (
+                <div className="row actions-row">
+                {children}
+                </div>
+            )}
         </div>
     );
 };
