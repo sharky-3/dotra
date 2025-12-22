@@ -221,7 +221,7 @@ export const IMAGE_EDITOR = ({ language }) => {
 
     return (
         <div className="image-editor-hero">
-            <div className="upload-image">
+            <section className="upload-image">
                 {!image && (
                     <div className="upload-image">
                         <label className="upload-image-btn">
@@ -231,11 +231,11 @@ export const IMAGE_EDITOR = ({ language }) => {
                     </div>
                 )}
                 {image && <canvas ref={canvasRef} className="uploaded-image" />}
-            </div>
+            </section>
 
-            <div className="image-editor">
-                <div className="top">
-                    <div className="left">
+            <section className="image-editor">
+                <main className="top">
+                    <nav className="left">
                         <TITLE_TEXT text={splitWords(t.shape)} />
                         <OPTION
                             list={[
@@ -261,9 +261,9 @@ export const IMAGE_EDITOR = ({ language }) => {
                         />
                         <RANGE title={t.pixelSize} type="px" min_value={2} max_value={300} step={1} current_value={dotSize} onChange={setDotSize} />
                         <RANGE title={t.spacing} type="px" min_value={0} max_value={100} step={1} current_value={spacing} onChange={setSpacing} />
-                    </div>
+                    </nav>
 
-                    <div className="right">
+                    <nav className="right">
                         <TITLE_TEXT text={splitWords(t.effects)} />
                         <OPTION list={[{ label: t.option.color, value: "color" }, { label: t.option.bw, value: "bw" }]} value={colorMode} onChange={setColorMode} />
                         <RANGE title={t.zoom} type="x" min_value={1} max_value={10} step={0.25} current_value={zoom} onChange={setZoom} />
@@ -271,14 +271,14 @@ export const IMAGE_EDITOR = ({ language }) => {
                         <RANGE title={t.opacity} type="%" min_value={0} max_value={100} step={1} current_value={opacity} onChange={setOpacity} />
                         <RANGE title={t.brightness} type="%" min_value={0} max_value={200} step={1} current_value={brightness} onChange={setBrightness} />
                         <RANGE title={t.colorVibration} type="%" min_value={0} max_value={50} step={1} current_value={colorVibration} onChange={setColorVibration} />
-                    </div>
-                </div>
+                    </nav>
+                </main>
 
-                <div className="bottom">
+                <footer className="bottom">
                     <ICON_BUTTON icon="/images/icons/reload.png" text={t.reset} onClick={reset} />
                     <ICON_BUTTON icon="/images/icons/download.png" text={t.download} onClick={downloadImage} />
-                </div>
-            </div>
+                </footer>
+            </section>
         </div>
     );
 };

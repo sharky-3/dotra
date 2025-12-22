@@ -16,7 +16,7 @@ export const TEXT_HERO = ({ title, text, children }) => {
     );
 
     return (
-        <div className="text-hero">
+        <section className="text-hero">
             <div className="row title-row">
                 <h1 className="title" id="text1" onChange={(e) => splitWords(title)}>{splitWords(title)}</h1>
             </div>
@@ -30,6 +30,6 @@ export const TEXT_HERO = ({ title, text, children }) => {
                 {children}
                 </div>
             )}
-        </div>
+        </section>
     );
 };

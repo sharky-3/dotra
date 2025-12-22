@@ -1,25 +1,55 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const RANGE = ({
-  title,
-  type,
-  min_value,
-  max_value,
-  step,
-  current_value,
-  onChange
+    title,
+    type,
+    min_value,
+    max_value,
+    step,
+    current_value,
+    onChange
 }) => {
     const [inputValue, setInputValue] = useState(String(current_value));
+    const hasAnimated = useRef(false);
+
     const splitWords = (text) =>
         text.split(" ").map((word, i) => (
-            <span
-                className="word"
-                key={`${word}-${i}-${text}`}
-                style={{ "--i": i }}
-                >{word}&nbsp;
-            </span>
-        )
-    );
+        <span
+            className="word"
+            key={`${word}-${i}-${text}`}
+            style={{ "--i": i }}
+        >
+            {word}&nbsp;
+        </span>
+        ));
+
+    useEffect(() => {
+        if (hasAnimated.current) return;
+        hasAnimated.current = true;
+
+        const start = min_value;
+        const end = current_value;
+        const duration = 800; // ms
+        const startTime = performance.now();
+
+        const animate = (time) => {
+        const progress = Math.min((time - startTime) / duration, 1);
+        const value =
+            start + (end - start) * progress;
+
+        const stepped =
+            Math.round(value / step) * step;
+
+        onChange(stepped);
+        setInputValue(String(stepped));
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+        };
+
+        requestAnimationFrame(animate);
+    }, []);
 
     useEffect(() => {
         setInputValue(String(current_value));
@@ -35,15 +65,17 @@ export const RANGE = ({
     };
 
     return (
-        <div className="range-hero">
+        <section className="range-hero">
         <header>
-            <div className="range-title">{splitWords(title)}</div>
+            <label className="range-title">{splitWords(title)}</label>
             <input
-                className="word"
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-            />{type}
+            id="bar"
+            className="word"
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            />
+            {type}
         </header>
 
         <input
@@ -57,7 +89,7 @@ export const RANGE = ({
             }}
             onChange={(e) => onChange(Number(e.target.value))}
         />
-        </div>
+        </section>
     );
 };
 
