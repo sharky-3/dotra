@@ -27,7 +27,24 @@ body {
     h1, label, button, img, div {
         transform: all .3s ease;
     }
+
+    .word {
+        display: inline-block;
+        
+        opacity: 0;
+        transform: translateY(8px);
+        filter: blur(5px);
+        animation: fadeUpBlur 0.45s ease-out forwards;
+        animation-delay: calc(0.04s + var(--i) * 0.03s);
+    }
 }
 body.light img {
   filter: invert(1) brightness(0);
+}
+@keyframes fadeUpBlur {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
 }

@@ -1,5 +1,5 @@
 export const TITLE_TEXT = ({text}) => {
-    return <h1 className="title-hero">{text}</h1>
+    return <h1 className="title-hero word">{text}</h1>
 }
 
 export const TEXT_HERO = ({ title, text, children }) => {

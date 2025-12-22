@@ -208,6 +208,17 @@ export const IMAGE_EDITOR = ({ language }) => {
         link.click();
     };
 
+    const splitWords = (text) =>
+        text.split(" ").map((word, i) => (
+            <span
+                className="word"
+                key={`${word}-${i}-${text}`}
+                style={{ "--i": i }}
+                >{word}&nbsp;
+            </span>
+        )
+    );
+
     return (
         <div className="image-editor-hero">
             <div className="upload-image">
@@ -225,7 +236,7 @@ export const IMAGE_EDITOR = ({ language }) => {
             <div className="image-editor">
                 <div className="top">
                     <div className="left">
-                        <TITLE_TEXT text={t.shape} />
+                        <TITLE_TEXT text={splitWords(t.shape)} />
                         <OPTION
                             list={[
                                 { label: t.option.square, value: "square" },
@@ -253,7 +264,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                     </div>
 
                     <div className="right">
-                        <TITLE_TEXT text={t.effects} />
+                        <TITLE_TEXT text={splitWords(t.effects)} />
                         <OPTION list={[{ label: t.option.color, value: "color" }, { label: t.option.bw, value: "bw" }]} value={colorMode} onChange={setColorMode} />
                         <RANGE title={t.zoom} type="x" min_value={1} max_value={10} step={0.25} current_value={zoom} onChange={setZoom} />
                         <RANGE title={t.rotation} type="°" min_value={0} max_value={90} step={1} current_value={rotation} onChange={setRotation} />
