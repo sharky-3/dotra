@@ -8,15 +8,17 @@ export const TEXT_HERO = ({ title, text, children }) => {
         text.split(" ").map((word, i) => (
             <span
                 className="word"
-                key={i}
+                key={`${word}-${i}-${text}`}
                 style={{ "--i": i }}
-            >{word}&nbsp;</span>
-    ));
+                >{word}&nbsp;
+            </span>
+        )
+    );
 
     return (
         <div className="text-hero">
             <div className="row title-row">
-                <h1 className="title">{splitWords(title)}</h1>
+                <h1 className="title" id="text1" onChange={(e) => splitWords(title)}>{splitWords(title)}</h1>
             </div>
 
             <div className="row text-row">
@@ -24,7 +26,7 @@ export const TEXT_HERO = ({ title, text, children }) => {
             </div>
 
             {children && (
-                <div className="row actions-row">
+                <div className="row actions-row" id="text2">
                 {children}
                 </div>
             )}

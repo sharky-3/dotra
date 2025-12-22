@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "../../hooks/useTranslation";
+import { MAIN } from "../../page/main.page";
 
 export const HEADER = () => {
   const { t, setLanguage, lang } = useTranslation();
@@ -22,7 +23,6 @@ export const HEADER = () => {
     document.body.classList.add(theme);
 
     localStorage.setItem("theme", theme);
-    console.log("Language changed: ", lang)
   }, [theme, lang]);
 
   const handleSelectChange = (e) => {

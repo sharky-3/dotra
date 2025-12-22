@@ -4,6 +4,7 @@ import { TranslationProvider } from "./hooks/useTranslation";
 import "./assets/styles/root.css";
 
 function App() {
+  const [language, setLanguage] = useState(localStorage.getItem("language") ||  "en");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
@@ -13,7 +14,7 @@ function App() {
 
   return (
     <TranslationProvider>
-      <MAIN theme={theme} setTheme={setTheme} />
+      <MAIN setLanguage={setLanguage} />
     </TranslationProvider>
   );
 }

@@ -10,6 +10,16 @@ export const RANGE = ({
   onChange
 }) => {
     const [inputValue, setInputValue] = useState(String(current_value));
+    const splitWords = (text) =>
+        text.split(" ").map((word, i) => (
+            <span
+                className="word"
+                key={`${word}-${i}-${text}`}
+                style={{ "--i": i }}
+                >{word}&nbsp;
+            </span>
+        )
+    );
 
     useEffect(() => {
         setInputValue(String(current_value));
@@ -27,8 +37,9 @@ export const RANGE = ({
     return (
         <div className="range-hero">
         <header>
-            <div className="range-title">{title}</div>
+            <div className="range-title">{splitWords(title)}</div>
             <input
+                className="word"
                 type="text"
                 value={inputValue}
                 onChange={handleInputChange}
