@@ -19,9 +19,11 @@
         --block-height: 650px;
 
         .upload-image {
-            background-color: var(--gray-color);
             width: 50%;
             height: var(--block-height);
+            position: relative;
+
+            border-right: 1px solid var(--gray-color);
 
             display: flex;
             justify-content: center;

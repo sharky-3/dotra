@@ -259,3 +259,10 @@
     }
 
 }
+
+.glare-text-effect {
+  position: relative;
+  display: inline-block;
+  color: white;
+  cursor: pointer;
+}

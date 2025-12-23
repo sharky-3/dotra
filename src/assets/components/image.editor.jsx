@@ -223,7 +223,7 @@ export const IMAGE_EDITOR = ({ language }) => {
         <div className="image-editor-hero">
             <section className="upload-image">
                 {!image && (
-                    <div className="upload-image">
+                    <div className="image">
                         <label className="upload-image-btn">
                             <img className="upload-icon" src="/images/icons/upload.png" alt="upload" />
                             <input type="file" accept="image/*" onChange={uploadImage} hidden />
