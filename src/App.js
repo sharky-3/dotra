@@ -14,7 +14,7 @@ function App() {
 
   return (
     <TranslationProvider>
-      <MAIN setLanguage={setLanguage} />
+      <MAIN />
     </TranslationProvider>
   );
 }
