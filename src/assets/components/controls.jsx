@@ -14,14 +14,15 @@ export const RANGE = ({
 
     const splitWords = (text) =>
         text.split(" ").map((word, i) => (
-        <span
-            className="word"
-            key={`${word}-${i}-${text}`}
-            style={{ "--i": i }}
-        >
-            {word}&nbsp;
-        </span>
-        ));
+            <span
+                className="word"
+                key={`${word}-${i}-${text}`}
+                style={{ "--i": i }}
+            >
+                {word}&nbsp;
+            </span>
+        )
+    );
 
     useEffect(() => {
         if (hasAnimated.current) return;
