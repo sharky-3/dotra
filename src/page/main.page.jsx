@@ -14,7 +14,7 @@ export const MAIN = () => {
       <HEADER />
 
       <TEXT_HERO key="hero-1" title={t[1].title} text={t[1].text} />
-      <OBAMA_EDITOR language={lang} />
+      <IMAGE_EDITOR language={lang} />
       <TEXT_HERO key="hero-2" title={t[2].title} text={t[2].text} />
     </div>
   );

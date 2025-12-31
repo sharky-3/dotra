@@ -4,257 +4,293 @@ import { ICON_BUTTON } from "./button.module";
 import { TITLE_TEXT } from "./text.module";
 import { TRANSLATION } from "../../lang/translations";
 
-const luminance = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
 export const OBAMA_EDITOR = ({ language }) => {
-    const t = TRANSLATION.getTranslation().Controls;
+  const t = TRANSLATION.getTranslation().Controls;
 
-    const [image, setImage] = useState(null);
-    const [zoom, setZoom] = useState(1);
-    const [rotation, setRotation] = useState(0);
-    const [dotSize, setDotSize] = useState(50);
-    const [shape, setShape] = useState("square");
-    const [colorMode, setColorMode] = useState("color");
-    const [opacity, setOpacity] = useState(100);
-    const [brightness, setBrightness] = useState(100);
-    const [colorVibration, setColorVibration] = useState(0);
-    const [dotSizeMode, setDotSizeMode] = useState("normal");
-    const [spacing, setSpacing] = useState(0);
-    const [animating, setAnimating] = useState(false);
+  const [image, setImage] = useState(null);
+  const [dotSize, setDotSize] = useState(20);
+  const [shape, setShape] = useState("square");
 
-    const canvasRef = useRef(null);
-    const imgRef = useRef(null);
-    const obamaRef = useRef(null);
-    const tilesRef = useRef([]);
-    const rafRef = useRef(null);
+  const canvasRef = useRef(null);
+  const imgRef = useRef(null);
+  const targetRef = useRef(null);
+  const animationRef = useRef(null);
+  const pixelsRef = useRef([]);
+  const convertedRef = useRef(false);
 
-    // Load Obama reference
-    useEffect(() => {
-        const img = new Image();
-        img.src = "/images/obama.jpeg";
-        img.crossOrigin = "anonymous";
-        img.onload = () => (obamaRef.current = img);
-    }, []);
-
-    // Upload image
-    const uploadImage = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-            imgRef.current = img;
-            setImage(img.src);
-            setAnimating(false);
-            setTimeout(() => setAnimating(true), 500);
-        };
+  const uploadImage = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      imgRef.current = img;
+      setImage(img.src);
+      convertedRef.current = false;
     };
+  };
 
-    // Prepare tiles and draw initial image
-    const prepareTiles = () => {
-        const user = imgRef.current;
-        const obama = obamaRef.current;
-        const canvas = canvasRef.current;
-        if (!user || !obama || !canvas) return;
+  useEffect(() => {
+    const targetImg = new Image();
+    targetImg.src = "/images/obama.jpeg";
+    targetImg.onload = () => (targetRef.current = targetImg);
+  }, []);
 
-        const ctx = canvas.getContext("2d");
+  const getGray = (r, g, b) => Math.round((r + g + b) / 3);
 
-        // Full screen canvas
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+  const drawImage = () => {
+    if (!imgRef.current || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    canvas.width = imgRef.current.width;
+    canvas.height = imgRef.current.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const w = obama.width;
-        const h = obama.height;
+    const pixels = [];
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width = imgRef.current.width;
+    offCanvas.height = imgRef.current.height;
+    const offCtx = offCanvas.getContext("2d");
+    offCtx.drawImage(imgRef.current, 0, 0);
+    const imgData = offCtx.getImageData(0, 0, imgRef.current.width, imgRef.current.height).data;
 
-        const offsetX = (canvas.width - w * zoom) / 2;
-        const offsetY = (canvas.height - h * zoom) / 2;
+    for (let y = 0; y < imgRef.current.height; y += dotSize) {
+      for (let x = 0; x < imgRef.current.width; x += dotSize) {
+        const i = (y * imgRef.current.width + x) * 4;
+        const r = imgData[i];
+        const g = imgData[i + 1];
+        const b = imgData[i + 2];
+        pixels.push({ x, y, r, g, b, brightness: getGray(r, g, b), currentX: x, currentY: y });
+      }
+    }
 
-        // Offscreen canvases
-        const uCan = document.createElement("canvas");
-        const oCan = document.createElement("canvas");
-        uCan.width = oCan.width = w;
-        uCan.height = oCan.height = h;
+    // If already converted, draw pixels at current positions
+    if (convertedRef.current && pixelsRef.current.length) {
+      pixelsRef.current.forEach((p) => drawPixel(ctx, p.currentX, p.currentY, p.r, p.g, p.b));
+    } else {
+      pixels.forEach((p) => drawPixel(ctx, p.x, p.y, p.r, p.g, p.b));
+    }
+  };
 
-        const uCtx = uCan.getContext("2d");
-        const oCtx = oCan.getContext("2d");
-
-        uCtx.drawImage(user, 0, 0, w, h);
-        oCtx.drawImage(obama, 0, 0, w, h);
-
-        const uPix = uCtx.getImageData(0, 0, w, h).data;
-        const oPix = oCtx.getImageData(0, 0, w, h).data;
-
-        const colors = [];
-        const targets = [];
-
-        // collect uploaded image pixels with effects
-        for (let y = 0; y < h; y += dotSize + spacing) {
-            for (let x = 0; x < w; x += dotSize + spacing) {
-                const i = (y * w + x) * 4;
-                let r = uPix[i];
-                let g = uPix[i + 1];
-                let b = uPix[i + 2];
-
-                if (colorMode === "bw") {
-                    const gray = Math.round((r + g + b) / 3);
-                    r = g = b = gray;
-                }
-
-                r = Math.min(255, r * (brightness / 100));
-                g = Math.min(255, g * (brightness / 100));
-                b = Math.min(255, b * (brightness / 100));
-
-                if (colorVibration > 0) {
-                    const shift = (Math.random() * 2 - 1) * colorVibration;
-                    r = Math.min(255, Math.max(0, r + shift));
-                    g = Math.min(255, Math.max(0, g + shift));
-                    b = Math.min(255, Math.max(0, b + shift));
-                }
-
-                colors.push({ r, g, b, x, y });
-            }
+  const drawPixel = (ctx, x, y, r, g, b) => {
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    const s = dotSize;
+    ctx.beginPath();
+    switch (shape) {
+      case "circle":
+        ctx.arc(x + s / 2, y + s / 2, s / 2, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      case "triangle":
+        ctx.moveTo(x + s / 2, y);
+        ctx.lineTo(x + s, y + s);
+        ctx.lineTo(x, y + s);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case "diamond":
+        ctx.moveTo(x + s / 2, y);
+        ctx.lineTo(x + s, y + s / 2);
+        ctx.lineTo(x + s / 2, y + s);
+        ctx.lineTo(x, y + s / 2);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case "hexagon":
+        const a = s / 2;
+        const h = Math.sqrt(3) * a / 2;
+        ctx.moveTo(x + a, y);
+        ctx.lineTo(x + s, y + h);
+        ctx.lineTo(x + s, y + h + a);
+        ctx.lineTo(x + a, y + s);
+        ctx.lineTo(x, y + h + a);
+        ctx.lineTo(x, y + h);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case "star":
+        const spikes = 5;
+        const outer = s / 2;
+        const inner = outer / 2.5;
+        let rot = Math.PI / 2 * 3;
+        let step = Math.PI / spikes;
+        ctx.moveTo(x + outer, y);
+        for (let i = 0; i < spikes; i++) {
+          ctx.lineTo(x + outer + Math.cos(rot) * outer, y + outer + Math.sin(rot) * outer);
+          rot += step;
+          ctx.lineTo(x + outer + Math.cos(rot) * inner, y + outer + Math.sin(rot) * inner);
+          rot += step;
         }
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case "heart":
+        ctx.moveTo(x + s / 2, y + s);
+        ctx.bezierCurveTo(x + s, y + s / 2, x + s, y, x + s / 2, y + s / 3);
+        ctx.bezierCurveTo(x, y, x, y + s / 2, x + s / 2, y + s);
+        ctx.fill();
+        break;
+      default:
+        ctx.fillRect(x, y, s, s);
+    }
+  };
 
-        // collect Obama target positions
-        for (let y = 0; y < h; y += dotSize + spacing) {
-            for (let x = 0; x < w; x += dotSize + spacing) {
-                const i = (y * w + x) * 4;
-                if (oPix[i + 3] < 40) continue;
-                targets.push({ x, y });
-            }
+  useEffect(() => {
+    if (image) drawImage();
+  }, [image, dotSize, shape]);
+
+  const convertToObama = () => {
+    if (!imgRef.current || !targetRef.current) return;
+
+    const w = imgRef.current.width;
+    const h = imgRef.current.height;
+
+    const srcCanvas = document.createElement("canvas");
+    srcCanvas.width = w;
+    srcCanvas.height = h;
+    const srcCtx = srcCanvas.getContext("2d");
+    srcCtx.drawImage(imgRef.current, 0, 0);
+    const srcData = srcCtx.getImageData(0, 0, w, h).data;
+
+    const tgtCanvas = document.createElement("canvas");
+    tgtCanvas.width = w;
+    tgtCanvas.height = h;
+    const tgtCtx = tgtCanvas.getContext("2d");
+    tgtCtx.drawImage(targetRef.current, 0, 0, w, h);
+    const tgtData = tgtCtx.getImageData(0, 0, w, h).data;
+
+    const sourcePixels = [];
+    const targetPixels = [];
+
+    for (let y = 0; y < h; y += dotSize) {
+      for (let x = 0; x < w; x += dotSize) {
+        const i = (y * w + x) * 4;
+        sourcePixels.push({
+          x,
+          y,
+          r: srcData[i],
+          g: srcData[i + 1],
+          b: srcData[i + 2],
+          brightness: getGray(srcData[i], srcData[i + 1], srcData[i + 2]),
+          currentX: x,
+          currentY: y,
+        });
+        targetPixels.push({
+          x,
+          y,
+          brightness: getGray(tgtData[i], tgtData[i + 1], tgtData[i + 2]),
+        });
+      }
+    }
+
+    sourcePixels.sort((a, b) => a.brightness - b.brightness);
+    targetPixels.sort((a, b) => a.brightness - b.brightness);
+
+    pixelsRef.current = sourcePixels.map((p, idx) => ({
+      ...p,
+      targetX: targetPixels[idx].x,
+      targetY: targetPixels[idx].y,
+      speed: 0.02 + Math.random() * 0.05,
+    }));
+
+    convertedRef.current = true;
+    animatePixels();
+  };
+
+  const animatePixels = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const step = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let finished = true;
+      pixelsRef.current.forEach((p) => {
+        const dx = p.targetX - p.currentX;
+        const dy = p.targetY - p.currentY;
+        if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+          finished = false;
+          p.currentX += dx * p.speed;
+          p.currentY += dy * p.speed;
         }
+        drawPixel(ctx, p.currentX, p.currentY, p.r, p.g, p.b);
+      });
 
-        tilesRef.current = targets.map((t, i) => {
-            const c = colors[i % colors.length];
-            return { r: c.r, g: c.g, b: c.b, x: c.x, y: c.y, tx: t.x * zoom, ty: t.y * zoom };
-        });
-
-        drawInitial(ctx, offsetX, offsetY);
+      if (!finished) animationRef.current = requestAnimationFrame(step);
     };
 
-    const drawInitial = (ctx, offsetX, offsetY) => {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        tilesRef.current.forEach(p => {
-            ctx.save();
-            const cx = p.x + offsetX + dotSize / 2;
-            const cy = p.y + offsetY + dotSize / 2;
-            ctx.translate(cx, cy);
-            ctx.rotate((rotation * Math.PI) / 180);
-            ctx.translate(-cx, -cy);
+    step();
+  };
 
-            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${opacity/100})`;
-            ctx.fillRect(p.x + offsetX, p.y + offsetY, dotSize, dotSize);
-            ctx.restore();
-        });
-    };
+  const downloadImage = () => {
+    if (!canvasRef.current) return;
+    const link = document.createElement("a");
+    link.download = "obama-pixel.png";
+    link.href = canvasRef.current.toDataURL("image/png");
+    link.click();
+  };
 
-    const animatePixels = () => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        let moving = false;
-        const offsetX = (canvas.width - obamaRef.current.width * zoom) / 2;
-        const offsetY = (canvas.height - obamaRef.current.height * zoom) / 2;
-
-        tilesRef.current.forEach(p => {
-            p.x += (p.tx - p.x) * 0.08;
-            p.y += (p.ty - p.y) * 0.08;
-
-            if (Math.abs(p.x - p.tx) > 0.5 || Math.abs(p.y - p.ty) > 0.5) moving = true;
-
-            ctx.save();
-            const cx = p.x + offsetX + dotSize / 2;
-            const cy = p.y + offsetY + dotSize / 2;
-            ctx.translate(cx, cy);
-            ctx.rotate((rotation * Math.PI) / 180);
-            ctx.translate(-cx, -cy);
-
-            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${opacity / 100})`;
-            switch (shape) {
-                case "circle":
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, dotSize / 2, 0, Math.PI * 2);
-                    ctx.fill();
-                    break;
-                default:
-                    ctx.fillRect(p.x + offsetX, p.y + offsetY, dotSize, dotSize);
-            }
-            ctx.restore();
-        });
-
-        if (moving) rafRef.current = requestAnimationFrame(animatePixels);
-    };
-
-    useEffect(() => {
-        if (!image) return;
-        prepareTiles();
-    }, [image, dotSize, spacing, colorMode, brightness, colorVibration, rotation, shape, opacity, zoom]);
-
-    useEffect(() => {
-        if (!animating) return;
-        cancelAnimationFrame(rafRef.current);
-        animatePixels();
-    }, [animating]);
-
-    const reset = () => {
-        setImage(null);
-        setAnimating(false);
-        tilesRef.current = [];
-    };
-
-    const downloadImage = () => {
-        const link = document.createElement("a");
-        link.download = "obama-pixel-animation.png";
-        link.href = canvasRef.current.toDataURL();
-        link.click();
-    };
-
-    const splitWords = (text) => text.split(" ").map((word, i) => (
-        <span className="word" key={`${word}-${i}-${text}`} style={{ "--i": i }}>{word}&nbsp;</span>
+  const splitWords = (text) =>
+    text.split(" ").map((word, i) => (
+      <span className="word" key={`${word}-${i}-${text}`} style={{ "--i": i }}>
+        {word}&nbsp;
+      </span>
     ));
 
-    return (
-        <div className="image-editor-hero">
-            <section className="upload-image">
-                {!image && (
-                    <div className="image">
-                        <label className="upload-image-btn">
-                            <img className="upload-icon" src="/images/icons/upload.png" alt="upload" />
-                            <input type="file" accept="image/*" onChange={uploadImage} hidden />
-                        </label>
-                    </div>
-                )}
-                {image && <canvas ref={canvasRef} className="uploaded-image" />}
-            </section>
+  return (
+    <div className="image-editor-hero">
+      <section className="upload-image">
+        {!image && (
+          <div className="image">
+            <label className="upload-image-btn">
+              <img className="upload-icon" src="/images/icons/upload.png" alt="upload" />
+              <input type="file" accept="image/*" onChange={uploadImage} hidden />
+            </label>
+          </div>
+        )}
+        {image && <canvas ref={canvasRef} className="uploaded-image" />}
+      </section>
 
-            <section className="image-editor">
-                <main className="top">
-                    <nav className="left">
-                        <TITLE_TEXT text={splitWords(t.shape)} />
-                        <OPTION list={[{ label: t.option.square, value: "square" }, { label: t.option.circle, value: "circle" }, { label: t.option.triangle, value: "triangle" }, { label: t.option.diamond, value: "diamond" }, { label: t.option.hexagon, value: "hexagon" }, { label: t.option.star, value: "star" }, { label: t.option.heart, value: "heart" }]} value={shape} onChange={setShape} />
-                        <OPTION list={[{ label: t.option.normal, value: "normal" }, { label: t.option.random, value: "random" }, { label: t.option.brightness, value: "brightness" }]} value={dotSizeMode} onChange={setDotSizeMode} />
-                        <RANGE title={t.pixelSize} type="px" min_value={2} max_value={300} step={1} current_value={dotSize} onChange={setDotSize} />
-                        <RANGE title={t.spacing} type="px" min_value={0} max_value={100} step={1} current_value={spacing} onChange={setSpacing} />
-                    </nav>
+      <section className="image-editor">
+        <main className="top">
+          <nav className="left">
+            <TITLE_TEXT text={splitWords(t.shape)} />
+            <OPTION
+              list={[
+                { label: t.option.square, value: "square" },
+                { label: t.option.circle, value: "circle" },
+                { label: t.option.triangle, value: "triangle" },
+                { label: t.option.diamond, value: "diamond" },
+                { label: t.option.hexagon, value: "hexagon" },
+                { label: t.option.star, value: "star" },
+                { label: t.option.heart, value: "heart" },
+              ]}
+              value={shape}
+              onChange={(s) => {
+                setShape(s);
+                if (convertedRef.current) drawImage(); // redraw converted pixels with new shape
+              }}
+            />
+            <RANGE
+              title={t.pixelSize}
+              type="px"
+              min_value={2}
+              max_value={50}
+              step={1}
+              current_value={dotSize}
+              onChange={(s) => {
+                setDotSize(s);
+                if (convertedRef.current) drawImage(); // redraw converted pixels with new size
+              }}
+            />
+          </nav>
+        </main>
 
-                    <nav className="right">
-                        <TITLE_TEXT text={splitWords(t.effects)} />
-                        <OPTION list={[{ label: t.option.color, value: "color" }, { label: t.option.bw, value: "bw" }]} value={colorMode} onChange={setColorMode} />
-                        <RANGE title={t.zoom} type="x" min_value={1} max_value={10} step={0.25} current_value={zoom} onChange={setZoom} />
-                        <RANGE title={t.rotation} type="°" min_value={0} max_value={90} step={1} current_value={rotation} onChange={setRotation} />
-                        <RANGE title={t.opacity} type="%" min_value={0} max_value={100} step={1} current_value={opacity} onChange={setOpacity} />
-                        <RANGE title={t.brightness} type="%" min_value={0} max_value={200} step={1} current_value={brightness} onChange={setBrightness} />
-                        <RANGE title={t.colorVibration} type="%" min_value={0} max_value={50} step={1} current_value={colorVibration} onChange={setColorVibration} />
-                    </nav>
-                </main>
-
-                <footer className="bottom">
-                    <ICON_BUTTON icon="/images/icons/reload.png" text={t.reset} onClick={reset} />
-                    <ICON_BUTTON icon="/images/icons/download.png" text={t.download} onClick={downloadImage} />
-                </footer>
-            </section>
-        </div>
-    );
+        <footer className="bottom">
+          <ICON_BUTTON icon="/images/icons/reload.png" text={t.convert} onClick={convertToObama} />
+          <ICON_BUTTON icon="/images/icons/download.png" text={t.download} onClick={downloadImage} />
+        </footer>
+      </section>
+    </div>
+  );
 };
