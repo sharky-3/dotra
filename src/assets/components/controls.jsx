@@ -24,35 +24,36 @@ export const RANGE = ({
         )
     );
 
-    useEffect(() => {
+    const animation = () => {
         if (hasAnimated.current) return;
         hasAnimated.current = true;
-
+    
         const start = min_value;
         const end = current_value;
-        const duration = 800; // ms
+        const duration = 800;
         const startTime = performance.now();
-
+    
         const animate = (time) => {
         const progress = Math.min((time - startTime) / duration, 1);
         const value =
             start + (end - start) * progress;
-
+    
         const stepped =
             Math.round(value / step) * step;
-
-        onChange(stepped);
-        setInputValue(String(stepped));
-
-        if (progress < 1) {
-            requestAnimationFrame(animate);
-        }
+            onChange(stepped);
+            setInputValue(String(stepped));
+    
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
         };
-
+    
         requestAnimationFrame(animate);
-    }, []);
+
+    };
 
     useEffect(() => {
+        animation();
         setInputValue(String(current_value));
     }, [current_value]);
 
