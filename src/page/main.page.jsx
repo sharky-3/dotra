@@ -3,6 +3,7 @@ import HEADER from "../assets/components/modules";
 import { IMAGE_EDITOR } from "../assets/components/image.editor";
 import { TEXT_HERO } from "../assets/components/text.module";
 import { TRANSLATION } from "../lang/translations";
+import { OBAMA_EDITOR } from "../assets/components/obama";
 
 export const MAIN = () => {
   const { lang } = useTranslation();
@@ -13,7 +14,7 @@ export const MAIN = () => {
       <HEADER />
 
       <TEXT_HERO key="hero-1" title={t[1].title} text={t[1].text} />
-      <IMAGE_EDITOR language={lang} />
+      <OBAMA_EDITOR language={lang} />
       <TEXT_HERO key="hero-2" title={t[2].title} text={t[2].text} />
     </div>
   );
