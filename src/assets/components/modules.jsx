@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "../../hooks/useTranslation";
 import { MAIN } from "../../page/main.page";
 
+// --- header module ---
 export const HEADER = () => {
   const { t, setLanguage, lang } = useTranslation();
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
+  // --- change language / website theme ---
   useEffect(() => {
     const root = document.documentElement;
 
@@ -25,6 +27,7 @@ export const HEADER = () => {
     localStorage.setItem("theme", theme);
   }, [theme, lang]);
 
+  // --- handle change ---
   const handleSelectChange = (e) => {
     const value = e.target.value;
 
@@ -38,14 +41,14 @@ export const HEADER = () => {
     e.target.value = "";
   };
 
+  // --- html structure ---
   return (
     <div className="header-hero">
-      {/* Back arrow */}
       <div className="img">
         <img src="/images/icons/arrow-left.png" alt="back" />
       </div>
 
-      {/* Settings dropdown */}
+      {/* --- settings dropdown --- */}
       <div className="img settings-wrapper">
         <img src="/images/icons/settings.png" alt="settings" />
         <select defaultValue="" onChange={handleSelectChange}>

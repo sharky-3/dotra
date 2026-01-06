@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
+// --- range module ---
 export const RANGE = ({
     title,
     type,
@@ -12,6 +13,7 @@ export const RANGE = ({
     const [inputValue, setInputValue] = useState(String(current_value));
     const hasAnimated = useRef(false);
 
+    // --- split words ---
     const splitWords = (text) =>
         text.split(" ").map((word, i) => (
             <span
@@ -24,6 +26,7 @@ export const RANGE = ({
         )
     );
 
+    // --- animate on change / load ---
     const animation = () => {
         if (hasAnimated.current) return;
         hasAnimated.current = true;
@@ -57,6 +60,7 @@ export const RANGE = ({
         setInputValue(String(current_value));
     }, [current_value]);
 
+    // --- input change ---
     const handleInputChange = (e) => {
         const val = e.target.value;
         setInputValue(val);
@@ -66,6 +70,7 @@ export const RANGE = ({
         onChange(num);
     };
 
+    // --- html structure ---
     return (
         <section className="range-hero">
         <header>
@@ -95,6 +100,7 @@ export const RANGE = ({
     );
 };
 
+// --- option module ---
 export const OPTION = ({ list, value, onChange }) => {
     return (
         <div className="option-hero">

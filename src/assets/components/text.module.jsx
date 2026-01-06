@@ -1,9 +1,12 @@
+// --- title text module ---
 export const TITLE_TEXT = ({text}) => {
     return <h1 className="title-hero word">{text}</h1>
 }
 
+// --- text hero module ---
 export const TEXT_HERO = ({ title, text, children }) => {
 
+    // --- split words ---
     const splitWords = (text) =>
         text.split(" ").map((word, i) => (
             <span

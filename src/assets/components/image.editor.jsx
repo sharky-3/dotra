@@ -5,8 +5,11 @@ import { TITLE_TEXT } from "./text.module";
 import { TRANSLATION } from "../../lang/translations";
 
 export const IMAGE_EDITOR = ({ language }) => {
+
+    // --- translation helper ---
     const t = TRANSLATION.getTranslation().Controls; 
 
+    // --- stats
     const [image, setImage] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
@@ -19,6 +22,7 @@ export const IMAGE_EDITOR = ({ language }) => {
     const [dotSizeMode, setDotSizeMode] = useState("normal"); 
     const [spacing, setSpacing] = useState(0);
 
+    // --- refs ---
     const offscreenRef = useRef(null);
     const canvasRef = useRef(null);
     const imgRef = useRef(null);
@@ -43,6 +47,7 @@ export const IMAGE_EDITOR = ({ language }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
+        // --- create offscreen canvas
         if (!offscreenRef.current) {
             const off = document.createElement("canvas");
             off.width = img.width;
@@ -51,21 +56,25 @@ export const IMAGE_EDITOR = ({ language }) => {
             offscreenRef.current = off;
         }
 
+
         const offCtx = offscreenRef.current.getContext("2d");
         const pixels = offCtx.getImageData(0, 0, img.width, img.height).data;
 
+        // --- match canvas size ---
         canvas.width = img.width;
         canvas.height = img.height;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.save();
 
+        // --- apply zoom ---
         const canvasCenterX = canvas.width / 2;
         const canvasCenterY = canvas.height / 2;
         ctx.translate(canvasCenterX, canvasCenterY);
         ctx.scale(zoom, zoom);
         ctx.translate(-canvasCenterX, -canvasCenterY);
 
+        // --- loop throught pixels ---
         for (let y = 0; y < img.height; y += dotSize + spacing) {
             for (let x = 0; x < img.width; x += dotSize + spacing) {
                 const index = (y * img.width + x) * 4;
@@ -73,15 +82,18 @@ export const IMAGE_EDITOR = ({ language }) => {
                 let g = pixels[index + 1];
                 let b = pixels[index + 2];
 
+                // --- convert to grayscale ---
                 if (colorMode === "bw") {
                     const gray = Math.round((r + g + b) / 3);
                     r = g = b = gray;
                 }
 
+                // --- apply brightness
                 r = Math.min(255, r * (brightness / 100));
                 g = Math.min(255, g * (brightness / 100));
                 b = Math.min(255, b * (brightness / 100));
 
+                // --- apply color vibration
                 if (colorVibration > 0) {
                     const vibrate = (value) => {
                         const shift = (Math.random() * 2 - 1) * colorVibration;
@@ -92,6 +104,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                     b = vibrate(b);
                 }
 
+                // --- determent dot size ---
                 let currentDotSize = dotSize;
                 if (dotSizeMode === "random") currentDotSize = Math.random() * dotSize + 1;
                 else if (dotSizeMode === "brightness") {
@@ -102,6 +115,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                 ctx.fillStyle = `rgb(${r},${g},${b})`;
                 ctx.globalAlpha = opacity / 100;
 
+                // --- apply rotation ---
                 ctx.save();
                 const centerX = x + currentDotSize / 2;
                 const centerY = y + currentDotSize / 2;
@@ -109,12 +123,14 @@ export const IMAGE_EDITOR = ({ language }) => {
                 ctx.rotate((rotation * Math.PI) / 180);
                 ctx.translate(-centerX, -centerY);
 
+                // --- draw selected shape ---
                 switch (shape) {
                     case "circle":
                         ctx.beginPath();
                         ctx.arc(centerX, centerY, currentDotSize / 2, 0, Math.PI * 2);
                         ctx.fill();
                         break;
+
                     case "triangle":
                         ctx.beginPath();
                         ctx.moveTo(x + currentDotSize / 2, y);
@@ -123,6 +139,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                         ctx.closePath();
                         ctx.fill();
                         break;
+
                     case "diamond":
                         ctx.beginPath();
                         ctx.moveTo(x + currentDotSize / 2, y);
@@ -132,6 +149,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                         ctx.closePath();
                         ctx.fill();
                         break;
+
                     case "hexagon":
                         ctx.beginPath();
                         const a = currentDotSize / 2;
@@ -145,6 +163,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                         ctx.closePath();
                         ctx.fill();
                         break;
+
                     case "star":
                         ctx.beginPath();
                         const spikes = 5;
@@ -162,6 +181,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                         ctx.closePath();
                         ctx.fill();
                         break;
+
                     case "heart":
                         const s = currentDotSize;
                         ctx.beginPath();
@@ -170,6 +190,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                         ctx.bezierCurveTo(x, y, x, y + s / 2, x + s / 2, y + s);
                         ctx.fill();
                         break;
+
                     default:
                         ctx.fillRect(x, y, currentDotSize, currentDotSize);
                 }
@@ -181,11 +202,13 @@ export const IMAGE_EDITOR = ({ language }) => {
         ctx.globalAlpha = 1;
     };
 
+    // --- redraw ---
     useEffect(() => {
         if (!image) return;
         drawImage();
     }, [image, zoom, rotation, dotSize, shape, colorMode, opacity, brightness, colorVibration, dotSizeMode, spacing, language]);
 
+    // --- reset ---
     const reset = () => {
         setZoom(1);
         setRotation(0);
@@ -199,6 +222,7 @@ export const IMAGE_EDITOR = ({ language }) => {
         setSpacing(0);
     };
 
+    // --- download ---
     const downloadImage = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -208,6 +232,7 @@ export const IMAGE_EDITOR = ({ language }) => {
         link.click();
     };
 
+    // --- split words ---
     const splitWords = (text) =>
         text.split(" ").map((word, i) => (
             <span
@@ -219,8 +244,11 @@ export const IMAGE_EDITOR = ({ language }) => {
         )
     );
 
+    // --- html structure ---
     return (
         <div className="image-editor-hero">
+
+            {/* --- upload image --- */}
             <section className="upload-image">
                 {!image && (
                     <div className="image">
@@ -233,6 +261,7 @@ export const IMAGE_EDITOR = ({ language }) => {
                 {image && <canvas ref={canvasRef} className="uploaded-image" />}
             </section>
 
+            {/* --- image editor --- */}
             <section className="image-editor">
                 <main className="top">
                     <nav className="left">

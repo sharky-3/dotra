@@ -4,6 +4,7 @@ export const TRANSLATION = (() => {
     let currentLang = localStorage.getItem("language") || DEFAULT_LANG;
     const listeners = new Set();
 
+    // --- choose language ---
     const setLanguage = (lang) => {
         currentLang = lang;
         localStorage.setItem("language", lang);
@@ -15,6 +16,7 @@ export const TRANSLATION = (() => {
         return () => listeners.delete(callback);
     };
 
+    // --- return text transations
     const getTranslation = () => {
         const translations = {
             Controls: {
